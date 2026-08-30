@@ -9,6 +9,7 @@ GITHUB_USER="zwfcrazy"
 PLUGIN_REPO="dsh-skills-inventory"
 SYNC_REPO_URL="https://github.com/zwfcrazy/dsh-config-sync"
 SYNC_TOKEN_REF="DSH_CONFIG_MANAGER_SYNC_TOKEN"
+DSH_URL="http://127.0.0.1:3080/"
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; CYAN='\033[0;36m'; NC='\033[0m'
 step() { echo -e "\n${CYAN}=== $1 ===${NC}"; }
@@ -25,6 +26,58 @@ npmg() {
   else
     sudo npm install -g "$@"
   fi
+}
+
+# 创建 DSH.app 启动器（双击启动 DSH + 自动开浏览器，无终端窗口）
+create_launcher_app() {
+  local appdir="$HOME/Applications/DSH.app"
+  local bin="$appdir/Contents/MacOS"
+  mkdir -p "$bin" "$appdir/Contents/Resources"
+
+  cat > "$bin/launch.sh" <<'EOF'
+#!/usr/bin/env bash
+export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.npm-global/bin:$HOME/.local/bin:$PATH"
+URL="http://127.0.0.1:3080/"
+LOG="$HOME/.dsh/dsh-web.log"
+
+# 已在运行 → 只打开浏览器
+if curl -fsS --max-time 2 "$URL" >/dev/null 2>&1; then
+  open "$URL"
+  exit 0
+fi
+
+# 后台启动 DSH（nohup 脱离终端），轮询等它就绪再开浏览器
+nohup dsh web > "$LOG" 2>&1 &
+for i in $(seq 1 30); do
+  sleep 1
+  if curl -fsS --max-time 2 "$URL" >/dev/null 2>&1; then
+    open "$URL"
+    exit 0
+  fi
+done
+
+# 30 秒还没起来：用 TextEdit 打开日志排查
+open -e "$LOG" 2>/dev/null || true
+exit 0
+EOF
+  chmod +x "$bin/launch.sh"
+
+  cat > "$appdir/Contents/Info.plist" <<'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleName</key><string>DSH</string>
+  <key>CFBundleDisplayName</key><string>DSH</string>
+  <key>CFBundleIdentifier</key><string>com.zwfcrazy.dsh</string>
+  <key>CFBundleVersion</key><string>1.0</string>
+  <key>CFBundleShortVersionString</key><string>1.0</string>
+  <key>CFBundleExecutable</key><string>launch.sh</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>LSMinimumSystemVersion</key><string>11.0</string>
+</dict>
+</plist>
+EOF
 }
 
 # 0. Homebrew
@@ -115,10 +168,16 @@ else
 fi
 ok "token 已写入 ${CRED}"
 
-# 9. 完成
+# 9. 创建 DSH.app 启动器
+step "创建 DSH.app 启动器"
+create_launcher_app
+ok "已创建 ~/Applications/DSH.app（可拖到 Dock）"
+info "双击 DSH.app 即可后台启动 DSH 并自动打开浏览器；日志在 ~/.dsh/dsh-web.log"
+
+# 10. 完成
 step "完成"
 echo "接下来："
-echo "  1. 启动 DSH：dsh web"
+echo "  1. 双击 ~/Applications/DSH.app 启动 DSH"
 echo "  2. 在 DSH 对话里说「拉取配置同步」，agent 会跑 config_sync_pull 预览 → 确认导入"
 echo ""
 echo "全部完成！设置 / 插件声明 / MCP / 技能 / 工作区 会从 Git 拉回。"

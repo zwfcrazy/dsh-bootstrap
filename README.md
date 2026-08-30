@@ -34,6 +34,8 @@ cd dsh-bootstrap
 bash setup-macos.sh
 ```
 
+> 脚本最后会创建 **`~/Applications/DSH.app`** 启动器：双击即后台启动 DSH 并自动打开浏览器（无终端窗口），可拖到 Dock。运行日志在 `~/.dsh/dsh-web.log`。
+
 > headless（无浏览器）服务器上，`gh auth login` 请选 token 或 device 流程（脚本里有提示）。
 
 ## 脚本做了哪些事
@@ -50,6 +52,7 @@ bash setup-macos.sh
 | 写同步通道 | 生成 `~/.dsh/dsh-config-manager/sync/sync-config.json` | 同左 | 同左 |
 | 写 token 凭据 | 写入 `~/.dsh/.credentials.yaml` | 同左 | 同左 |
 | 登录 GitHub | `gh auth login` | 同左 | 同左 |
+| 启动器 | — | — | **DSH.app** |
 
 ## 配置同步（跨机核心）
 
