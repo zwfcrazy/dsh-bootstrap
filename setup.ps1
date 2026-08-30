@@ -11,11 +11,21 @@ $SYNC_TOKEN_REF  = "DSH_CONFIG_MANAGER_SYNC_TOKEN"
 
 function Step($m) { Write-Host "`n=== $m ===" -ForegroundColor Cyan }
 function Ok($m)   { Write-Host "  [OK] $m" -ForegroundColor Green }
-function Info($m) { Write-Host "      $m" }
+function Info($m) { Write-Host "      $m" }`r`nfunction Warn($m) { Write-Host "  [!] $m" -ForegroundColor Yellow }
 function Die($m)  { Write-Host "  [X] $m" -ForegroundColor Red; exit 1 }
 
-# 1. Node
-Step "检查 Node.js"
+# 0. 预检 GitHub 连通性
+Step "预检 GitHub 连通性"
+try {
+  $null = Invoke-WebRequest -Uri "https://github.com" -Method Head -TimeoutSec 8 -UseBasicParsing
+  Ok "github.com 可达"
+} catch {
+  Warn "无法连接 github.com:443，github: 源插件安装会失败"
+  Info "若有代理：git config --global http.proxy http://127.0.0.1:<端口>"
+  Info "或用 SSH：git config --global url.'git@github.com:'.insteadOf 'https://github.com/'"
+}
+
+# 1. NodeStep "检查 Node.js"
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) { Die "未找到 Node.js，请先装 https://nodejs.org/ (>=22)" }
 Ok ("Node " + (node --version))
 
@@ -37,7 +47,9 @@ Ok "dsh 已安装"
 # 5. 插件
 Step "安装插件"
 dsh plugin --profile web add "github:$GITHUB_USER/$PLUGIN_REPO"
+if ($LASTEXITCODE -ne 0) { Die "自建插件安装失败（退出码 $LASTEXITCODE），请先解决 GitHub 连通性" }
 dsh plugin --profile web add "dsh-config-manager@$CM_VERSION"
+if ($LASTEXITCODE -ne 0) { Die "dsh-config-manager 安装失败（退出码 $LASTEXITCODE）" }
 Ok "插件已安装"
 
 # 6. GitHub 登录（配置同步凭据）
