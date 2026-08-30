@@ -11,7 +11,8 @@ $SYNC_TOKEN_REF  = "DSH_CONFIG_MANAGER_SYNC_TOKEN"
 
 function Step($m) { Write-Host "`n=== $m ===" -ForegroundColor Cyan }
 function Ok($m)   { Write-Host "  [OK] $m" -ForegroundColor Green }
-function Info($m) { Write-Host "      $m" }`r`nfunction Warn($m) { Write-Host "  [!] $m" -ForegroundColor Yellow }
+function Info($m) { Write-Host "      $m" }
+function Warn($m) { Write-Host "  [!] $m" -ForegroundColor Yellow }
 function Die($m)  { Write-Host "  [X] $m" -ForegroundColor Red; exit 1 }
 
 # 0. 预检 GitHub 连通性
@@ -25,7 +26,8 @@ try {
   Info "或用 SSH：git config --global url.'git@github.com:'.insteadOf 'https://github.com/'"
 }
 
-# 1. NodeStep "检查 Node.js"
+# 1. Node
+Step "检查 Node.js"
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) { Die "未找到 Node.js，请先装 https://nodejs.org/ (>=22)" }
 Ok ("Node " + (node --version))
 
@@ -52,7 +54,7 @@ dsh plugin --profile web add "dsh-config-manager@$CM_VERSION"
 if ($LASTEXITCODE -ne 0) { Die "dsh-config-manager 安装失败（退出码 $LASTEXITCODE）" }
 Ok "插件已安装"
 
-# 6. GitHub 登录（配置同步凭据）
+# 6. GitHub 登录
 Step "登录 GitHub（浏览器授权，用于配置同步）"
 gh auth login
 $token = (gh auth token 2>&1 | Out-String).Trim()
