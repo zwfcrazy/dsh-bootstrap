@@ -1,4 +1,4 @@
-# DSH 新机器一键搭建脚本
+﻿# DSH 新机器一键搭建脚本
 # 用法: powershell -ExecutionPolicy Bypass -File .\setup.ps1
 $ErrorActionPreference = "Stop"
 
