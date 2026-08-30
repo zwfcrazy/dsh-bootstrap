@@ -47,7 +47,7 @@ bash setup-macos.sh
 | 装 pnpm | `npm install -g pnpm` | 同左（sudo 兜底） | 同左 |
 | 装 GitHub CLI | `winget install GitHub.cli` | 官方 apt 源 | `brew install gh` |
 | 装 DSH | `npm install -g @deepseek-ai/dsh@0.1.1-rc.2` | 同左 | 同左 |
-| 装自建插件 | `dsh plugin --profile web add github:zwfcrazy/dsh-skills-inventory` | 同左 | 同左 |
+| 装自建插件 | 由 config_sync_pull 拉回时自动重装（脚本不硬编码） | 同左 | 同左 |
 | 装配置同步 | `dsh plugin --profile web add dsh-config-manager@0.1.54` | 同左 | 同左 |
 | 写同步通道 | 生成 `~/.dsh/dsh-config-manager/sync/sync-config.json` | 同左 | 同左 |
 | 写 token 凭据 | 写入 `~/.dsh/.credentials.yaml` | 同左 | 同左 |
@@ -77,7 +77,7 @@ bash setup-macos.sh
 
 - 装插件/MCP 后需重启 DSH 生效。
 - **自建插件代码由各自的 git 仓库承载**（`github:` spec 安装）；dsh-config-manager 只同步插件的「声明」（装哪个、什么版本），不搬运插件二进制。
-- apikey 默认不随配置同步，换机后需重新填入（或在源机器做加密备份）。
+- apikey 默认不随配置同步，换机后需重新填入（或在源机器做加密备份）。`n- 新增/更新自建插件后：在主机器 `config_sync_push` 即可，bootstrap 脚本不用改；新机器拉回时自动重装。
 - 三个脚本都**不硬编码任何密钥**：token 是运行时从 `gh auth token` 取的。
 
 ## 相关仓库

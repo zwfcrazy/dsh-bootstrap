@@ -5,7 +5,6 @@ $ErrorActionPreference = "Stop"
 $DSH_VERSION     = "0.1.1-rc.2"
 $CM_VERSION      = "0.1.54"
 $GITHUB_USER     = "zwfcrazy"
-$PLUGIN_REPO     = "dsh-skills-inventory"
 $SYNC_REPO_URL   = "https://github.com/zwfcrazy/dsh-config-sync"
 $SYNC_TOKEN_REF  = "DSH_CONFIG_MANAGER_SYNC_TOKEN"
 
@@ -46,13 +45,11 @@ Step "安装 DSH launcher"
 npm install -g "@deepseek-ai/dsh@$DSH_VERSION"
 Ok "dsh 已安装"
 
-# 5. 插件
-Step "安装插件"
-dsh plugin --profile web add "github:$GITHUB_USER/$PLUGIN_REPO"
-if ($LASTEXITCODE -ne 0) { Die "自建插件安装失败（退出码 $LASTEXITCODE），请先解决 GitHub 连通性" }
+# 5. 配置同步插件（只装这一个；其它自建插件由 config_sync_pull 拉回时自动重装）
+Step "安装配置同步插件"
 dsh plugin --profile web add "dsh-config-manager@$CM_VERSION"
 if ($LASTEXITCODE -ne 0) { Die "dsh-config-manager 安装失败（退出码 $LASTEXITCODE）" }
-Ok "插件已安装"
+Ok "dsh-config-manager 已安装"
 
 # 6. GitHub 登录
 Step "登录 GitHub（浏览器授权，用于配置同步）"
@@ -99,5 +96,6 @@ Step "完成"
 Write-Host "接下来："
 Write-Host "  1. 启动 DSH：dsh web"
 Write-Host "  2. 在 DSH 对话里说「拉取配置同步」，agent 会跑 config_sync_pull 预览 → 确认导入"
+Write-Host "     （导入时 dsh-config-manager 会自动重装你的自建插件）"
 Write-Host ""
-Write-Host "全部完成！设置 / 插件声明 / MCP / 技能 / 工作区 会从 Git 拉回。"
+Write-Host "全部完成！设置 / 插件 / MCP / 技能 / 工作区 会从 Git 拉回。"

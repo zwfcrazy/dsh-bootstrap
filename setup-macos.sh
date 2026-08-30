@@ -6,7 +6,6 @@ set -euo pipefail
 DSH_VERSION="0.1.1-rc.2"
 CM_VERSION="0.1.54"
 GITHUB_USER="zwfcrazy"
-PLUGIN_REPO="dsh-skills-inventory"
 SYNC_REPO_URL="https://github.com/zwfcrazy/dsh-config-sync"
 SYNC_TOKEN_REF="DSH_CONFIG_MANAGER_SYNC_TOKEN"
 DSH_URL="http://127.0.0.1:3080/"
@@ -40,13 +39,11 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.npm-global/bin:$HOME/.local
 URL="http://127.0.0.1:3080/"
 LOG="$HOME/.dsh/dsh-web.log"
 
-# 已在运行 → 只打开浏览器
 if curl -fsS --max-time 2 "$URL" >/dev/null 2>&1; then
   open "$URL"
   exit 0
 fi
 
-# 后台启动 DSH（nohup 脱离终端），轮询等它就绪再开浏览器
 nohup dsh web > "$LOG" 2>&1 &
 for i in $(seq 1 30); do
   sleep 1
@@ -56,7 +53,6 @@ for i in $(seq 1 30); do
   fi
 done
 
-# 30 秒还没起来：用 TextEdit 打开日志排查
 open -e "$LOG" 2>/dev/null || true
 exit 0
 EOF
@@ -127,11 +123,10 @@ step "安装 DSH launcher"
 npmg "@deepseek-ai/dsh@${DSH_VERSION}"
 ok "dsh 已安装"
 
-# 5. 插件
-step "安装插件"
-dsh plugin --profile web add "github:${GITHUB_USER}/${PLUGIN_REPO}"
+# 5. 配置同步插件（只装这一个；其它自建插件由 config_sync_pull 拉回时自动重装）
+step "安装配置同步插件"
 dsh plugin --profile web add "dsh-config-manager@${CM_VERSION}"
-ok "插件已安装"
+ok "dsh-config-manager 已安装"
 
 # 6. GitHub 登录
 step "登录 GitHub（浏览器授权）"
@@ -179,5 +174,6 @@ step "完成"
 echo "接下来："
 echo "  1. 双击 ~/Applications/DSH.app 启动 DSH"
 echo "  2. 在 DSH 对话里说「拉取配置同步」，agent 会跑 config_sync_pull 预览 → 确认导入"
+echo "     （导入时 dsh-config-manager 会自动重装你的自建插件）"
 echo ""
-echo "全部完成！设置 / 插件声明 / MCP / 技能 / 工作区 会从 Git 拉回。"
+echo "全部完成！设置 / 插件 / MCP / 技能 / 工作区 会从 Git 拉回。"
