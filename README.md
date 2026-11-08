@@ -76,11 +76,17 @@ bash setup-macos.sh
 ## 注意事项
 
 - 装插件/MCP 后需重启 DSH 生效。
+- **0.2.1 起首开需认证**：`dsh web` 启动输出里有带 `?token=` 的 URL，用它首次打开（浏览器存 cookie 后 30 天免，之后直接开 `http://127.0.0.1:3080/`）。
 - **自建插件代码由各自的 git 仓库承载**（`github:` spec 安装）；dsh-config-manager 只同步插件的「声明」（装哪个、什么版本），不搬运插件二进制。
-- apikey 默认不随配置同步，换机后需重新填入（或在源机器做加密备份）。`n- 新增/更新自建插件后：在主机器 `config_sync_push` 即可，bootstrap 脚本不用改；新机器拉回时自动重装。
+- **dsh-voice 仅 Linux**（引擎依赖 PipeWire）：非 Linux 机器同步拉回时会被平台限制干净跳过（非致命警告），属预期行为。
+- apikey 默认不随配置同步，换机后需重新填入（或在源机器做加密备份）。
+- 新增/更新自建插件后：在主机器 `config_sync_push` 即可，bootstrap 脚本不用改；新机器拉回时自动重装。
 - 三个脚本都**不硬编码任何密钥**：token 是运行时从 `gh auth token` 取的。
+- Node 版本：0.2.1 系 Node ≥22.19 即可；**0.2.2 起要求 Node ≥24.9**，将来升级 dsh 时注意。
 
 ## 相关仓库
 
-- [dsh-skills-inventory](https://github.com/zwfcrazy/dsh-skills-inventory) — 自建插件示例
+- [dsh-voice](https://github.com/zwfcrazy/dsh-voice) — 语音助手插件（内嵌 Python 引擎，仅 Linux）
+- [dsh-web-search-tavily](https://github.com/zwfcrazy/dsh-web-search-tavily) — Tavily 网页搜索后端
+- [dsh-skills-inventory](https://github.com/zwfcrazy/dsh-skills-inventory) — 技能清单面板
 - [dsh-config-manager](https://github.com/xiajiajun516/dsh-config-manager) — 配置备份/迁移/同步（上游）
