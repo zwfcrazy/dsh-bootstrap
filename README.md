@@ -46,9 +46,9 @@ bash setup-macos.sh
 | 装 Node 22+ | 检查提示 | NodeSource | `brew install node` |
 | 装 pnpm | `npm install -g pnpm` | 同左（sudo 兜底） | 同左 |
 | 装 GitHub CLI | `winget install GitHub.cli` | 官方 apt 源 | `brew install gh` |
-| 装 DSH | `npm install -g @deepseek-ai/dsh@0.1.1-rc.2` | 同左 | 同左 |
+| 装 DSH | `npm install -g @deepseek-ai/dsh@0.2.1-rc.5` | 同左 | 同左 |
 | 装自建插件 | 由 config_sync_pull 拉回时自动重装（脚本不硬编码） | 同左 | 同左 |
-| 装配置同步 | `dsh plugin --profile web add dsh-config-manager@0.1.54` | 同左 | 同左 |
+| 装配置同步 | `dsh plugin --profile web add dsh-config-manager@0.4.3` | 同左 | 同左 |
 | 写同步通道 | 生成 `~/.dsh/dsh-config-manager/sync/sync-config.json` | 同左 | 同左 |
 | 写 token 凭据 | 写入 `~/.dsh/.credentials.yaml` | 同左 | 同左 |
 | 登录 GitHub | `gh auth login` | 同左 | 同左 |

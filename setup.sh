@@ -3,8 +3,9 @@
 # 用法: bash setup.sh
 set -euo pipefail
 
-DSH_VERSION="0.1.1-rc.2"
-CM_VERSION="0.1.54"
+# 0.2.1-rc.5：Node 22 可用（无 engines 强制）；0.2.2+ 将要求 Node ≥24.9，升级时注意
+DSH_VERSION="0.2.1-rc.5"
+CM_VERSION="0.4.3"
 GITHUB_USER="zwfcrazy"
 SYNC_REPO_URL="https://github.com/zwfcrazy/dsh-config-sync"
 SYNC_TOKEN_REF="DSH_CONFIG_MANAGER_SYNC_TOKEN"
@@ -108,6 +109,8 @@ ok "token 已写入 ${CRED}"
 step "完成"
 echo "接下来："
 echo "  1. 启动 DSH：dsh web"
+echo "     ⚠ 0.2.1 起首开需认证：启动输出里有带 ?token= 的 URL，用它打开"
+echo "       （浏览器存 cookie 后 30 天免；之后直接开 http://127.0.0.1:3080/）"
 echo "  2. 在 DSH 对话里说「拉取配置同步」，agent 会跑 config_sync_pull 预览 → 确认导入"
 echo "     （导入时 dsh-config-manager 会自动重装你的自建插件）"
 echo ""

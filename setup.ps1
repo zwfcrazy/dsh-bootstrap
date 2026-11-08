@@ -1,9 +1,10 @@
-﻿# DSH 新机器一键搭建脚本
+# DSH 新机器一键搭建脚本
 # 用法: powershell -ExecutionPolicy Bypass -File .\setup.ps1
 $ErrorActionPreference = "Stop"
 
-$DSH_VERSION     = "0.1.1-rc.2"
-$CM_VERSION      = "0.1.54"
+# 0.2.1-rc.5：Node 22 可用（无 engines 强制）；0.2.2+ 将要求 Node >=24.9，升级时注意
+$DSH_VERSION     = "0.2.1-rc.5"
+$CM_VERSION      = "0.4.3"
 $GITHUB_USER     = "zwfcrazy"
 $SYNC_REPO_URL   = "https://github.com/zwfcrazy/dsh-config-sync"
 $SYNC_TOKEN_REF  = "DSH_CONFIG_MANAGER_SYNC_TOKEN"
@@ -95,6 +96,8 @@ Ok "token 已写入 $credFile"
 Step "完成"
 Write-Host "接下来："
 Write-Host "  1. 启动 DSH：dsh web"
+Write-Host "     [!] 0.2.1 起首开需认证：启动输出里有带 ?token= 的 URL，用它打开"
+Write-Host "         （浏览器存 cookie 后 30 天免；之后直接开 http://127.0.0.1:3080/）"
 Write-Host "  2. 在 DSH 对话里说「拉取配置同步」，agent 会跑 config_sync_pull 预览 → 确认导入"
 Write-Host "     （导入时 dsh-config-manager 会自动重装你的自建插件）"
 Write-Host ""

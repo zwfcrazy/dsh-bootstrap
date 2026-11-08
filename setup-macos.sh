@@ -3,8 +3,9 @@
 # 用法: bash setup-macos.sh
 set -euo pipefail
 
-DSH_VERSION="0.1.1-rc.2"
-CM_VERSION="0.1.54"
+# 0.2.1-rc.5：Node 22 可用（无 engines 强制）；0.2.2+ 将要求 Node ≥24.9，升级时注意
+DSH_VERSION="0.2.1-rc.5"
+CM_VERSION="0.4.3"
 GITHUB_USER="zwfcrazy"
 SYNC_REPO_URL="https://github.com/zwfcrazy/dsh-config-sync"
 SYNC_TOKEN_REF="DSH_CONFIG_MANAGER_SYNC_TOKEN"
@@ -39,16 +40,28 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.npm-global/bin:$HOME/.local
 URL="http://127.0.0.1:3080/"
 LOG="$HOME/.dsh/dsh-web.log"
 
-if curl -fsS --max-time 2 "$URL" >/dev/null 2>&1; then
-  open "$URL"
+# 0.2.1 起 web 有认证栅栏：活着 = 有 HTTP 响应（200/303/401 都算，401 是
+# 未带 token 的正常形态；旧版 curl -f 把 401 当失败 → 30 秒后只会打开日志）
+alive() {
+  local code
+  code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 2 "$URL" 2>/dev/null)"
+  [ -n "$code" ] && [ "$code" != "000" ]
+}
+# 从启动输出取带 token 的 URL（每次启动都换；浏览器存 cookie 后 30 天免）
+tokenurl() {
+  grep -ao "http://127.0.0.1:3080/?token=[^ '\"]*" "$LOG" 2>/dev/null | tail -1
+}
+
+if alive; then
+  open "$(tokenurl || echo "$URL")"
   exit 0
 fi
 
 nohup dsh web > "$LOG" 2>&1 &
 for i in $(seq 1 30); do
   sleep 1
-  if curl -fsS --max-time 2 "$URL" >/dev/null 2>&1; then
-    open "$URL"
+  if alive; then
+    open "$(tokenurl || echo "$URL")"
     exit 0
   fi
 done
@@ -172,7 +185,8 @@ info "双击 DSH.app 即可后台启动 DSH 并自动打开浏览器；日志在
 # 10. 完成
 step "完成"
 echo "接下来："
-echo "  1. 双击 ~/Applications/DSH.app 启动 DSH"
+echo "  1. 双击 ~/Applications/DSH.app 启动 DSH（启动器会自动带 token 打开浏览器；"
+echo "     0.2.1 起首开需认证，浏览器存 cookie 后 30 天免）"
 echo "  2. 在 DSH 对话里说「拉取配置同步」，agent 会跑 config_sync_pull 预览 → 确认导入"
 echo "     （导入时 dsh-config-manager 会自动重装你的自建插件）"
 echo ""
